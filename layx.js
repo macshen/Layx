@@ -268,10 +268,13 @@
             var _position = Utils.compileLayxPosition(_width, _height, config.position);
             _top = _position.top;
             _left = _position.left;
-            _top = Math.max(_top, 0);
-            _top = Math.min(win.innerHeight - 15, _top);
-            _left = Math.max(_left, -(_width - 15));
-            _left = Math.min(_left, win.innerWidth - 15);
+            // 对于浮动窗口，不限制初始位置，因为位置会由 updateFloatWinPosition 重新计算
+            if (!Utils.isDom(config.floatTarget)) {
+                _top = Math.max(_top, 0);
+                _top = Math.min(win.innerHeight - 15, _top);
+                _left = Math.max(_left, -(_width - 15));
+                _left = Math.min(_left, win.innerWidth - 15);
+            }
             if (config.storeStatus === true && config.floatTarget === false) {
                 var _areaInfo = that.getStoreWindowAreaInfo(config.id);
                 if (_areaInfo) {
@@ -1849,9 +1852,7 @@
                     var html = layxWindow.querySelector("#layx-" + id + "-html");
                     if (html) {
                         var child = html.children[0];
-                        if (child && child.style) {
-                            child.style.display = oldNodeInfo.display;
-                        }
+                        child.style.display = oldNodeInfo.display;
                         if (oldNodeInfo.prev) {
                             setTimeout(function () {
                                 Utils.insertAfter(child, oldNodeInfo.prev);
@@ -1870,9 +1871,7 @@
                             var html = layxWindow.querySelector("#layx-" + id + "-" + frameId + "-html");
                             if (html) {
                                 var child = html.children[0];
-                                if (child && child.style) {
-                                    child.style.display = frameInfo.display;
-                                }
+                                child.style.display = frameInfo.display;
                                 if (frameInfo.prev) {
                                     setTimeout(function () {
                                         Utils.insertAfter(child, frameInfo.prev);
@@ -2559,12 +2558,10 @@
         },
         insertAfter: function (newEl, targetEl) {
             var parentEl = targetEl.parentNode;
-            if (newEl) {
-                if (parentEl.lastChild == targetEl) {
-                    parentEl.appendChild(newEl);
-                } else {
-                    parentEl.insertBefore(newEl, targetEl.nextSibling);
-                }
+            if (parentEl.lastChild == targetEl) {
+                parentEl.appendChild(newEl);
+            } else {
+                parentEl.insertBefore(newEl, targetEl.nextSibling);
             }
         },
         innerArea: function () {
@@ -2685,30 +2682,34 @@
                 case "bottom":
                     pos.top = targetPos.y + target.offsetHeight + bubbleSize;
                     pos.left = targetPos.x;
-                    if (targetPos.x + width >= innerArea.width) {
-                        pos.left = innerArea.width - width;
-                    }
+                    // 移除对浮动窗口的视口限制，让它们可以出现在页面任何位置
+                    // if (targetPos.x + width >= innerArea.width) {
+                    //     pos.left = innerArea.width - width;
+                    // }
                     break;
                 case "top":
                     pos.top = targetPos.y - (height + bubbleSize);
                     pos.left = targetPos.x;
-                    if (targetPos.x + width >= innerArea.width) {
-                        pos.left = innerArea.width - width;
-                    }
+                    // 移除对浮动窗口的视口限制，让它们可以出现在页面任何位置
+                    // if (targetPos.x + width >= innerArea.width) {
+                    //     pos.left = innerArea.width - width;
+                    // }
                     break;
                 case "right":
                     pos.top = targetPos.y;
                     pos.left = targetPos.x + target.offsetWidth + bubbleSize;
-                    if (targetPos.y + height >= innerArea.height) {
-                        pos.top = innerArea.height - height;
-                    }
+                    // 移除对浮动窗口的视口限制，让它们可以出现在页面任何位置
+                    // if (targetPos.y + height >= innerArea.height) {
+                    //     pos.top = innerArea.height - height;
+                    // }
                     break;
                 case "left":
                     pos.top = targetPos.y;
                     pos.left = targetPos.x - (width + bubbleSize);
-                    if (targetPos.y + height >= innerArea.height) {
-                        pos.top = innerArea.height - height;
-                    }
+                    // 移除对浮动窗口的视口限制，让它们可以出现在页面任何位置
+                    // if (targetPos.y + height >= innerArea.height) {
+                    //     pos.top = innerArea.height - height;
+                    // }
                     break;
             }
             return pos;
